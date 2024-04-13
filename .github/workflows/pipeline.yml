@@ -10,19 +10,39 @@ on:
     branches: [ "main" ]
 
 jobs:
-  build:
+  build_test:
 
     runs-on: ubuntu-latest
     
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v3
     - name: Use Node.js 20.x
       uses: actions/setup-node@v3
       with:
         node-version: 20.x
         cache: 'npm'
-    - run: npm install
-    - run: npm run start
+    - run: npm ci
     - run: npx playwright install
     - run: npm run test:unit
     - run: echo "StanilHadzhiev"
+
+  run-ui-tests:
+    needs: build_test
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout the repository
+        uses: actions/checkout@v3
+      - name: Use Node.js 20.x
+        uses: actions/setup-node@v3
+        with:
+          node-version: 20.x
+          cache: 'npm'
+      - name: Install NPM dependencies
+        run: npm install
+      - name: Install playwright
+        run: npx playwright install
+      - name: Start the application
+        run: npm run start &
+      - name: Run tests
+        run: npm run test:ui
